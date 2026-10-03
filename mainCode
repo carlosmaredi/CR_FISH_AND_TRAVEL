@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portfolio | Visual Arts & Media</title>
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-zinc-950 text-zinc-100 min-h-screen">
+
+  <!-- Header -->
+  <header class="border-b border-zinc-800 p-6 flex justify-between items-center max-w-7xl mx-auto">
+    <h1 class="text-xl font-bold tracking-tight text-white">PORTFOLIO</h1>
+    <a href="#contact" class="px-4 py-2 bg-amber-500 text-zinc-950 font-semibold rounded-lg hover:bg-amber-400 text-sm">
+      Get in Touch
+    </a>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="max-w-7xl mx-auto px-6 py-20 text-center">
+    <p class="text-amber-400 font-mono text-sm tracking-wider uppercase mb-2">Visual Gallery & Media</p>
+    <h2 class="text-4xl md:text-6xl font-extrabold tracking-tight mb-4">Capturing Moments, Oceans & Wilds</h2>
+    <p class="text-zinc-400 max-w-xl mx-auto text-base md:text-lg">
+      A collection of high-resolution stills, expedition footage, and documentary visual work.
+    </p>
+  </section>
+
+  <!-- Gallery Grid -->
+  <section class="max-w-7xl mx-auto px-6 pb-24">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+
+      <!-- Item 1 (Image Example) -->
+      <div class="group relative rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800 shadow-md">
+        <!-- Point 'src' directly to your uploaded file name in GitHub -->
+        <img src="photo-1.jpg" alt="Sample photo" class="w-full h-72 object-cover transition-transform duration-300 group-hover:scale-105" />
+        <div class="p-4 bg-zinc-900/90 border-t border-zinc-800">
+          <h3 class="text-base font-semibold text-white">Ocean Drift</h3>
+          <p class="text-xs text-zinc-400">Wildlife & Marine</p>
+        </div>
+      </div>
+
+      <!-- Item 2 (Video Example) -->
+      <div class="group relative rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800 shadow-md">
+        <!-- Point 'src' to your uploaded mp4 file -->
+        <video controls class="w-full h-72 object-cover">
+          <source src="drone-reel.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+        <div class="p-4 bg-zinc-900/90 border-t border-zinc-800">
+          <h3 class="text-base font-semibold text-white">Aerial Showcase</h3>
+          <p class="text-xs text-zinc-400">Short Film & Drone</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Footer / Contact -->
+  <footer id="contact" class="border-t border-zinc-800 py-12 text-center text-sm text-zinc-500">
+    <p>&copy; 2026 Portfolio. Built with GitHub Pages.</p>
+  </footer>
+
+</body>
+</html>
