@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="scroll-smooth">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,109 +8,314 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="bg-zinc-950 text-zinc-100 min-h-screen">
+<body class="bg-zinc-950 text-zinc-100 min-h-screen flex flex-col justify-between">
 
   <!-- Header -->
-<header class="border-b border-zinc-800 p-6 flex justify-between items-center max-w-7xl mx-auto">
-  <a href="#" class="flex items-center">
-    <img 
-      src="Logos/Completo_White.png" 
-      alt="Logo" 
-      class="h-8 md:h-10 w-auto object-contain mix-blend-screen"
-    />
-  </a>
-  <a href="#contact" class="px-4 py-2 bg-amber-500 text-zinc-950 font-semibold rounded-lg hover:bg-amber-400 text-sm transition-colors">
-    Get in Touch
-  </a>
-</header>
+  <header class="sticky top-0 z-40 bg-zinc-950/80 backdrop-blur-md border-b border-zinc-800">
+    <div class="max-w-7xl mx-auto p-6 flex items-center gap-8 md:gap-12">
+      <!-- Logo -->
+      <a href="#" class="flex items-center shrink-0">
+        <img 
+          src="Logos/Completo_White.png" 
+          alt="Logo" 
+          class="h-8 md:h-10 w-auto object-contain mix-blend-screen"
+        />
+      </a>
+      
+      <!-- Nav Tabs -->
+      <nav class="flex items-center gap-4 text-sm md:text-base font-medium">
+        <button 
+          id="tab-fotos" 
+          onclick="switchTab('fotos')" 
+          class="px-4 py-1.5 rounded-full bg-zinc-100 text-zinc-900 transition-all font-semibold cursor-pointer"
+        >
+          Fotos
+        </button>
+        <button 
+          id="tab-videos" 
+          onclick="switchTab('videos')" 
+          class="px-4 py-1.5 rounded-full text-zinc-400 hover:text-white transition-all font-semibold cursor-pointer"
+        >
+          Videos
+        </button>
+      </nav>
+    </div>
+  </header>
 
   <!-- Hero Section -->
-  <section class="max-w-7xl mx-auto px-6 py-20 text-center">
-    
+  <section class="max-w-7xl mx-auto px-6 py-16 text-center">
     <h2 class="text-4xl md:text-6xl font-extrabold tracking-tight mb-4">Capturando Momentos, Océanos & Naturaleza</h2>
     <p class="text-zinc-400 max-w-xl mx-auto text-base md:text-lg">
-      Una colección de imágenes de alta resolución, piezas viajes de pesca y otras aventuras.
+      Una colección de imágenes de alta resolución, piezas de viajes de pesca y otras aventuras.
     </p>
   </section>
 
-  <!-- Gallery Grid -->
-<section class="max-w-7xl mx-auto px-6 pb-24">
-  <!-- Container where images will be added dynamically -->
-  <div id="gallery-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-    <!-- Optional: Loading indicator while photos load -->
-    <div id="loading" class="col-span-full text-center py-12 text-zinc-500">
-      Loading photos...
-    </div>
-  </div>
-</section>
+  <!-- Main Content Area -->
+  <main class="max-w-7xl mx-auto px-6 pb-24 w-full flex-grow">
+    
+    <!-- 1. PHOTOS VIEW (Default) -->
+    <section id="view-fotos" class="block">
+      <div id="gallery-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        <div id="loading-photos" class="col-span-full text-center py-12 text-zinc-500">
+          Cargando fotos...
+        </div>
+      </div>
+    </section>
 
-<!-- Automatic Gallery Script -->
-<script>
-  // 1. Set your GitHub username and repository name here
-  const GITHUB_USERNAME = "carlosmaredi"; 
-  const GITHUB_REPO = "CR_FISH_AND_TRAVEL";
-  const IMAGES_FOLDER = "images";
+    <!-- 2. VIDEOS VIEW (Hidden by default) -->
+    <section id="view-videos" class="hidden">
+      <div id="videos-container" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div id="loading-videos" class="col-span-full text-center py-12 text-zinc-500">
+          Cargando videos...
+        </div>
+      </div>
+    </section>
 
-  async function loadImagesFromRepo() {
-    const container = document.getElementById("gallery-container");
-    const loading = document.getElementById("loading");
-
-    try {
-      // Fetch the file list of the images folder using GitHub's public API
-      const apiUrl = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${IMAGES_FOLDER}`;
-      const response = await fetch(apiUrl);
-
-      if (!response.ok) {
-        throw new Error(`GitHub API Error: ${response.status}`);
-      }
-
-      const files = await response.json();
-
-      // Remove loading indicator
-      if (loading) loading.remove();
-
-      // Filter only image files (jpg, jpeg, png, webp, gif)
-      const validExtensions = /\.(jpe?g|png|webp|gif)$/i;
-      const imageFiles = files.filter(file => file.type === "file" && validExtensions.test(file.name));
-
-      // Loop through each photo and generate a card
-      imageFiles.forEach(file => {
-  const card = document.createElement("a");
-  card.href = file.path;
-  card.target = "_blank";
-  card.className = "group block rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800 shadow-md";
-
-  card.innerHTML = `
-    <div class="overflow-hidden">
-      <img 
-        src="${file.path}" 
-        alt="Photo" 
-        loading="lazy"
-        class="w-full h-72 object-cover transition-transform duration-300 group-hover:scale-105" 
-      />
-    </div>
-  `;
-
-  container.appendChild(card);
-});;
-
-    } catch (error) {
-      console.error("Error loading gallery:", error);
-      if (loading) {
-        loading.innerHTML = `<p class="text-red-400">Could not load images. Check repository configuration.</p>`;
-      }
-    }
-  }
-
-  // Run the function when the page loads
-  loadImagesFromRepo();
-</script>
-  </section>
+  </main>
 
   <!-- Footer / Contact -->
   <footer id="contact" class="border-t border-zinc-800 py-12 text-center text-sm text-zinc-500">
     <p>&copy; 2026 Portfolio. Built with GitHub Pages.</p>
   </footer>
 
+  <!-- Scripts -->
+  <script>
+    // 1. GitHub Configuration
+    const GITHUB_USERNAME = "carlosmaredi"; 
+    const GITHUB_REPO = "CR_FISH_AND_TRAVEL";
+    const IMAGES_FOLDER = "images";
+    const VIDEOS_FILE = "videos.txt"; // A plain text file in repo root with 1 URL per line
+
+    // Lightbox state variables
+    let currentImages = [];
+    let currentIndex = 0;
+    let videosLoaded = false;
+
+    // --- TAB SWITCHING LOGIC ---
+    function switchTab(tab) {
+      const viewFotos = document.getElementById("view-fotos");
+      const viewVideos = document.getElementById("view-videos");
+      const tabFotos = document.getElementById("tab-fotos");
+      const tabVideos = document.getElementById("tab-videos");
+
+      if (tab === "fotos") {
+        viewFotos.classList.remove("hidden");
+        viewVideos.classList.add("hidden");
+
+        // Active button styles
+        tabFotos.className = "px-4 py-1.5 rounded-full bg-zinc-100 text-zinc-900 transition-all font-semibold cursor-pointer";
+        tabVideos.className = "px-4 py-1.5 rounded-full text-zinc-400 hover:text-white transition-all font-semibold cursor-pointer";
+      } else {
+        viewFotos.classList.add("hidden");
+        viewVideos.classList.remove("hidden");
+
+        // Active button styles
+        tabVideos.className = "px-4 py-1.5 rounded-full bg-zinc-100 text-zinc-900 transition-all font-semibold cursor-pointer";
+        tabFotos.className = "px-4 py-1.5 rounded-full text-zinc-400 hover:text-white transition-all font-semibold cursor-pointer";
+
+        // Load videos the first time tab is opened
+        if (!videosLoaded) {
+          loadVideosFromTxt();
+          videosLoaded = true;
+        }
+      }
+    }
+
+    // --- LIGHTBOX IMPLEMENTATION ---
+    function createLightbox() {
+      const overlay = document.createElement("div");
+      overlay.id = "lightbox-modal";
+      overlay.className = "fixed inset-0 z-50 hidden bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 select-none";
+      
+      overlay.innerHTML = `
+        <button id="lightbox-close" class="absolute top-5 right-5 text-white/80 hover:text-white text-3xl font-light focus:outline-none p-2 cursor-pointer z-10 transition">
+          &times;
+        </button>
+
+        <button id="lightbox-prev" class="absolute left-4 top-1/2 -translate-y-1/2 text-white/80 hover:text-white bg-black/40 hover:bg-black/70 p-3 rounded-full focus:outline-none cursor-pointer z-10 transition">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        </button>
+
+        <div class="max-w-5xl max-h-[85vh] flex items-center justify-center">
+          <img id="lightbox-img" src="" alt="Enlarged photo" class="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl transition duration-200">
+        </div>
+
+        <button id="lightbox-next" class="absolute right-4 top-1/2 -translate-y-1/2 text-white/80 hover:text-white bg-black/40 hover:bg-black/70 p-3 rounded-full focus:outline-none cursor-pointer z-10 transition">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        </button>
+      `;
+
+      document.body.appendChild(overlay);
+
+      const lightboxImg = overlay.querySelector("#lightbox-img");
+      const closeBtn = overlay.querySelector("#lightbox-close");
+      const prevBtn = overlay.querySelector("#lightbox-prev");
+      const nextBtn = overlay.querySelector("#lightbox-next");
+
+      function updateImage() {
+        lightboxImg.src = currentImages[currentIndex].path;
+      }
+
+      function openModal(index) {
+        currentIndex = index;
+        updateImage();
+        overlay.classList.remove("hidden");
+        document.body.style.overflow = "hidden";
+      }
+
+      function closeModal() {
+        overlay.classList.add("hidden");
+        lightboxImg.src = "";
+        document.body.style.overflow = "";
+      }
+
+      function showPrev() {
+        currentIndex = (currentIndex - 1 + currentImages.length) % currentImages.length;
+        updateImage();
+      }
+
+      function showNext() {
+        currentIndex = (currentIndex + 1) % currentImages.length;
+        updateImage();
+      }
+
+      closeBtn.addEventListener("click", closeModal);
+      prevBtn.addEventListener("click", (e) => { e.stopPropagation(); showPrev(); });
+      nextBtn.addEventListener("click", (e) => { e.stopPropagation(); showNext(); });
+
+      overlay.addEventListener("click", (e) => {
+        if (e.target === overlay) closeModal();
+      });
+
+      window.addEventListener("keydown", (e) => {
+        if (overlay.classList.contains("hidden")) return;
+        if (e.key === "Escape") closeModal();
+        if (e.key === "ArrowLeft") showPrev();
+        if (e.key === "ArrowRight") showNext();
+      });
+
+      return openModal;
+    }
+
+    // --- LOAD IMAGES VIA GITHUB API ---
+    async function loadImagesFromRepo() {
+      const container = document.getElementById("gallery-container");
+      const loading = document.getElementById("loading-photos");
+
+      try {
+        const openLightbox = createLightbox();
+        const apiUrl = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${IMAGES_FOLDER}`;
+        const response = await fetch(apiUrl);
+
+        if (!response.ok) throw new Error(`GitHub API Error: ${response.status}`);
+
+        const files = await response.json();
+        if (loading) loading.remove();
+
+        const validExtensions = /\.(jpe?g|png|webp|gif)$/i;
+        currentImages = files.filter(file => file.type === "file" && validExtensions.test(file.name));
+
+        currentImages.forEach((file, index) => {
+          const card = document.createElement("div");
+          card.className = "group block rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800 shadow-md cursor-pointer";
+
+          card.innerHTML = `
+            <div class="overflow-hidden">
+              <img 
+                src="${file.path}" 
+                alt="Photo" 
+                loading="lazy"
+                class="w-full h-72 object-cover transition-transform duration-300 group-hover:scale-105" 
+              />
+            </div>
+          `;
+
+          card.addEventListener("click", () => openLightbox(index));
+          container.appendChild(card);
+        });
+
+      } catch (error) {
+        console.error("Error loading gallery:", error);
+        if (loading) {
+          loading.innerHTML = `<p class="text-red-400">Could not load images. Check repository configuration.</p>`;
+        }
+      }
+    }
+
+    // --- LOAD VIDEOS FROM .TXT FILE ---
+    async function loadVideosFromTxt() {
+      const container = document.getElementById("videos-container");
+      const loading = document.getElementById("loading-videos");
+
+      try {
+        // Fetch raw txt file from the repository
+        const txtUrl = `https://raw.githubusercontent.com/${GITHUB_USERNAME}/${GITHUB_REPO}/main/${VIDEOS_FILE}`;
+        const response = await fetch(txtUrl);
+
+        if (!response.ok) throw new Error(`Could not find ${VIDEOS_FILE}`);
+
+        const text = await response.text();
+        if (loading) loading.remove();
+
+        // Split by line, trim whitespace, ignore comments and empty lines
+        const urls = text
+          .split("\n")
+          .map(line => line.trim())
+          .filter(line => line.length > 0 && !line.startsWith("#"));
+
+        if (urls.length === 0) {
+          container.innerHTML = `<p class="col-span-full text-center text-zinc-500 py-12">No video URLs found in ${VIDEOS_FILE}.</p>`;
+          return;
+        }
+
+        urls.forEach(url => {
+          const card = document.createElement("div");
+          card.className = "rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800 shadow-md aspect-video";
+
+          // Support for YouTube links vs direct MP4/WebM files
+          if (url.includes("youtube.com") || url.includes("youtu.be")) {
+            let embedUrl = url;
+            if (url.includes("watch?v=")) {
+              embedUrl = url.replace("watch?v=", "embed/");
+            } else if (url.includes("youtu.be/")) {
+              embedUrl = url.replace("youtu.be/", "www.youtube.com/embed/");
+            }
+            card.innerHTML = `
+              <iframe 
+                src="${embedUrl}" 
+                class="w-full h-full" 
+                frameborder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowfullscreen>
+              </iframe>
+            `;
+          } else {
+            // Direct video link (.mp4, .webm, etc.)
+            card.innerHTML = `
+              <video 
+                controls 
+                preload="metadata" 
+                class="w-full h-full object-cover bg-black"
+              >
+                <source src="${url}">
+                Tu navegador no soporta el tag de video.
+              </video>
+            `;
+          }
+
+          container.appendChild(card);
+        });
+
+      } catch (error) {
+        console.error("Error loading videos:", error);
+        if (loading) {
+          loading.innerHTML = `<p class="text-zinc-500 py-8">Crea un archivo llamado <code>videos.txt</code> en la raíz de tu repositorio con una URL por línea.</p>`;
+        }
+      }
+    }
+
+    // Initialize gallery on page load
+    loadImagesFromRepo();
+  </script>
 </body>
 </html>
