@@ -64,7 +64,7 @@
 
     <!-- 2. VIDEOS VIEW (Hidden by default) -->
     <section id="view-videos" class="hidden">
-      <div id="videos-container" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div id="videos-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         <div id="loading-videos" class="col-span-full text-center py-12 text-zinc-500">
           Cargando videos...
         </div>
@@ -72,6 +72,16 @@
     </section>
 
   </main>
+
+  <!-- Video Player Lightbox Modal -->
+  <div id="video-modal" class="fixed inset-0 z-50 hidden bg-black/90 backdrop-blur-md flex items-center justify-center p-4 select-none">
+    <button id="video-modal-close" class="absolute top-5 right-5 text-white/80 hover:text-white text-3xl font-light focus:outline-none p-2 cursor-pointer z-10 transition">
+      &times;
+    </button>
+    <div id="video-modal-content" class="w-full max-w-4xl aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl relative flex items-center justify-center">
+      <!-- Dynamic video iframe or native player will be injected here -->
+    </div>
+  </div>
 
   <!-- Footer / Contact -->
   <footer id="contact" class="border-t border-zinc-800 py-12 text-center text-sm text-zinc-500">
@@ -84,7 +94,7 @@
     const GITHUB_USERNAME = "carlosmaredi"; 
     const GITHUB_REPO = "CR_FISH_AND_TRAVEL";
     const IMAGES_FOLDER = "images";
-    const VIDEOS_FILE = "videos.txt"; // A plain text file in repo root with 1 URL per line
+    const VIDEOS_FILE = "videos.txt";
 
     // Lightbox state variables
     let currentImages = [];
@@ -102,18 +112,15 @@
         viewFotos.classList.remove("hidden");
         viewVideos.classList.add("hidden");
 
-        // Active button styles
         tabFotos.className = "px-4 py-1.5 rounded-full bg-zinc-100 text-zinc-900 transition-all font-semibold cursor-pointer";
         tabVideos.className = "px-4 py-1.5 rounded-full text-zinc-400 hover:text-white transition-all font-semibold cursor-pointer";
       } else {
         viewFotos.classList.add("hidden");
         viewVideos.classList.remove("hidden");
 
-        // Active button styles
         tabVideos.className = "px-4 py-1.5 rounded-full bg-zinc-100 text-zinc-900 transition-all font-semibold cursor-pointer";
         tabFotos.className = "px-4 py-1.5 rounded-full text-zinc-400 hover:text-white transition-all font-semibold cursor-pointer";
 
-        // Load videos the first time tab is opened
         if (!videosLoaded) {
           loadVideosFromTxt();
           videosLoaded = true;
@@ -121,7 +128,7 @@
       }
     }
 
-    // --- LIGHTBOX IMPLEMENTATION ---
+    // --- PHOTO LIGHTBOX IMPLEMENTATION ---
     function createLightbox() {
       const overlay = document.createElement("div");
       overlay.id = "lightbox-modal";
@@ -197,6 +204,71 @@
       return openModal;
     }
 
+    // --- VIDEO MODAL POPUP LOGIC ---
+    const videoModal = document.getElementById("video-modal");
+    const videoModalContent = document.getElementById("video-modal-content");
+    const videoModalClose = document.getElementById("video-modal-close");
+
+    function openVideoModal(url, isYouTube, youtubeId, isShort) {
+      if (isYouTube && youtubeId) {
+        // Embed YouTube video with autoplay
+        videoModalContent.innerHTML = `
+          <iframe 
+            src="https://www.youtube.com/embed/${youtubeId}?autoplay=1&rel=0" 
+            class="w-full h-full" 
+            frameborder="0" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+            allowfullscreen>
+          </iframe>
+        `;
+        // Format aspect ratio appropriately for YouTube Shorts
+        if (isShort) {
+          videoModalContent.className = "w-full max-w-sm aspect-[9/16] bg-black rounded-2xl overflow-hidden shadow-2xl relative";
+        } else {
+          videoModalContent.className = "w-full max-w-4xl aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl relative";
+        }
+      } else {
+        // Native HTML5 video player
+        videoModalContent.className = "w-full max-w-4xl aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl relative";
+        videoModalContent.innerHTML = `
+          <video controls autoplay class="w-full h-full object-contain bg-black">
+            <source src="${url}">
+            Tu navegador no soporta el tag de video.
+          </video>
+        `;
+      }
+
+      videoModal.classList.remove("hidden");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeVideoModal() {
+      videoModal.classList.add("hidden");
+      videoModalContent.innerHTML = ""; // Stop playback immediately
+      document.body.style.overflow = "";
+    }
+
+    videoModalClose.addEventListener("click", closeVideoModal);
+    videoModal.addEventListener("click", (e) => {
+      if (e.target === videoModal) closeVideoModal();
+    });
+
+    window.addEventListener("keydown", (e) => {
+      if (!videoModal.classList.contains("hidden") && e.key === "Escape") {
+        closeVideoModal();
+      }
+    });
+
+    // Helper: Extract YouTube ID & detect if it is a Short
+    function parseYouTubeUrl(url) {
+      const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/);
+      const isShort = url.includes("/shorts/");
+      return {
+        id: match ? match[1] : null,
+        isShort: isShort
+      };
+    }
+
     // --- LOAD IMAGES VIA GITHUB API ---
     async function loadImagesFromRepo() {
       const container = document.getElementById("gallery-container");
@@ -248,7 +320,6 @@
       const loading = document.getElementById("loading-videos");
 
       try {
-        // Fetch raw txt file from the repository
         const txtUrl = `https://raw.githubusercontent.com/${GITHUB_USERNAME}/${GITHUB_REPO}/main/${VIDEOS_FILE}`;
         const response = await fetch(txtUrl);
 
@@ -257,51 +328,55 @@
         const text = await response.text();
         if (loading) loading.remove();
 
-        // Split by line, trim whitespace, ignore comments and empty lines
         const urls = text
           .split("\n")
           .map(line => line.trim())
           .filter(line => line.length > 0 && !line.startsWith("#"));
 
         if (urls.length === 0) {
-          container.innerHTML = `<p class="col-span-full text-center text-zinc-500 py-12">No video URLs found in ${VIDEOS_FILE}.</p>`;
+          container.innerHTML = `<p class="col-span-full text-center text-zinc-500 py-12">No se encontraron URLs en ${VIDEOS_FILE}.</p>`;
           return;
         }
 
         urls.forEach(url => {
-          const card = document.createElement("div");
-          card.className = "rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800 shadow-md aspect-video";
+          const { id: ytId, isShort } = parseYouTubeUrl(url);
+          const isYouTube = Boolean(ytId);
 
-          // Support for YouTube links vs direct MP4/WebM files
-          if (url.includes("youtube.com") || url.includes("youtu.be")) {
-            let embedUrl = url;
-            if (url.includes("watch?v=")) {
-              embedUrl = url.replace("watch?v=", "embed/");
-            } else if (url.includes("youtu.be/")) {
-              embedUrl = url.replace("youtu.be/", "www.youtube.com/embed/");
-            }
-            card.innerHTML = `
-              <iframe 
-                src="${embedUrl}" 
-                class="w-full h-full" 
-                frameborder="0" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                allowfullscreen>
-              </iframe>
-            `;
-          } else {
-            // Direct video link (.mp4, .webm, etc.)
-            card.innerHTML = `
-              <video 
-                controls 
-                preload="metadata" 
-                class="w-full h-full object-cover bg-black"
-              >
-                <source src="${url}">
-                Tu navegador no soporta el tag de video.
-              </video>
-            `;
-          }
+          const card = document.createElement("div");
+          card.className = "group relative rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800 shadow-md cursor-pointer aspect-video";
+
+          // Use HQ YouTube thumbnail if available, or a fallback placeholder for direct files
+          const thumbnailUrl = isYouTube 
+            ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`
+            : "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=800&auto=format&fit=crop&q=60";
+
+          card.innerHTML = `
+            <img 
+              src="${thumbnailUrl}" 
+              alt="Video preview" 
+              loading="lazy" 
+              class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 opacity-80 group-hover:opacity-100"
+            />
+            
+            <!-- Play Button Overlay -->
+            <div class="absolute inset-0 bg-black/40 flex items-center justify-center group-hover:bg-black/20 transition-all">
+              <div class="w-14 h-14 rounded-full bg-white/20 backdrop-blur-md border border-white/40 flex items-center justify-center text-white shadow-lg transition-transform duration-300 group-hover:scale-110">
+                <svg class="w-6 h-6 fill-current translate-x-0.5" viewBox="0 0 24 24">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+              </div>
+            </div>
+
+            ${isShort ? `
+              <span class="absolute top-3 left-3 bg-red-600/90 text-white text-xs px-2.5 py-1 rounded-full font-semibold uppercase tracking-wider backdrop-blur-sm">
+                Short
+              </span>
+            ` : ""}
+          `;
+
+          card.addEventListener("click", () => {
+            openVideoModal(url, isYouTube, ytId, isShort);
+          });
 
           container.appendChild(card);
         });
