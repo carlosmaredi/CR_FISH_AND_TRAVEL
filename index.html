@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -11,19 +11,25 @@
 <body class="bg-zinc-950 text-zinc-100 min-h-screen">
 
   <!-- Header -->
-  <header class="border-b border-zinc-800 p-6 flex justify-between items-center max-w-7xl mx-auto">
-    <h1 class="text-xl font-bold tracking-tight text-white">PORTFOLIO</h1>
-    <a href="#contact" class="px-4 py-2 bg-amber-500 text-zinc-950 font-semibold rounded-lg hover:bg-amber-400 text-sm">
-      Get in Touch
-    </a>
-  </header>
+<header class="border-b border-zinc-800 p-6 flex justify-between items-center max-w-7xl mx-auto">
+  <a href="#" class="flex items-center">
+    <img 
+      src="logos/completo_White.png" 
+      alt="Logo" 
+      class="h-8 md:h-10 w-auto object-contain mix-blend-screen"
+    />
+  </a>
+  <a href="#contact" class="px-4 py-2 bg-amber-500 text-zinc-950 font-semibold rounded-lg hover:bg-amber-400 text-sm transition-colors">
+    Get in Touch
+  </a>
+</header>
 
   <!-- Hero Section -->
   <section class="max-w-7xl mx-auto px-6 py-20 text-center">
-    <p class="text-amber-400 font-mono text-sm tracking-wider uppercase mb-2">Visual Gallery & Media</p>
-    <h2 class="text-4xl md:text-6xl font-extrabold tracking-tight mb-4">Capturing Moments, Oceans & Wilds</h2>
+    
+    <h2 class="text-4xl md:text-6xl font-extrabold tracking-tight mb-4">Capturando Momentos, Océanos & Naturaleza</h2>
     <p class="text-zinc-400 max-w-xl mx-auto text-base md:text-lg">
-      A collection of high-resolution stills, expedition footage, and documentary visual work.
+      Una colección de imágenes de alta resolución, piezas viajes de pesca y otras aventuras.
     </p>
   </section>
 
@@ -42,7 +48,7 @@
 <script>
   // 1. Set your GitHub username and repository name here
   const GITHUB_USERNAME = "carlosmaredi"; 
-  const GITHUB_REPO = "portfolio_website";
+  const GITHUB_REPO = "CR_FISH_AND_TRAVEL";
   const IMAGES_FOLDER = "images";
 
   async function loadImagesFromRepo() {
