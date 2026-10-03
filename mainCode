@@ -28,33 +28,90 @@
   </section>
 
   <!-- Gallery Grid -->
-  <section class="max-w-7xl mx-auto px-6 pb-24">
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-
-      <!-- Item 1 (Image Example) -->
-      <div class="group relative rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800 shadow-md">
-        <!-- Point 'src' directly to your uploaded file name in GitHub -->
-        <img src="photo-1.jpg" alt="Sample photo" class="w-full h-72 object-cover transition-transform duration-300 group-hover:scale-105" />
-        <div class="p-4 bg-zinc-900/90 border-t border-zinc-800">
-          <h3 class="text-base font-semibold text-white">Ocean Drift</h3>
-          <p class="text-xs text-zinc-400">Wildlife & Marine</p>
-        </div>
-      </div>
-
-      <!-- Item 2 (Video Example) -->
-      <div class="group relative rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800 shadow-md">
-        <!-- Point 'src' to your uploaded mp4 file -->
-        <video controls class="w-full h-72 object-cover">
-          <source src="drone-reel.mp4" type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
-        <div class="p-4 bg-zinc-900/90 border-t border-zinc-800">
-          <h3 class="text-base font-semibold text-white">Aerial Showcase</h3>
-          <p class="text-xs text-zinc-400">Short Film & Drone</p>
-        </div>
-      </div>
-
+<section class="max-w-7xl mx-auto px-6 pb-24">
+  <!-- Container where images will be added dynamically -->
+  <div id="gallery-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+    <!-- Optional: Loading indicator while photos load -->
+    <div id="loading" class="col-span-full text-center py-12 text-zinc-500">
+      Loading photos...
     </div>
+  </div>
+</section>
+
+<!-- Automatic Gallery Script -->
+<script>
+  // 1. Set your GitHub username and repository name here
+  const GITHUB_USERNAME = "carlosmaredi"; 
+  const GITHUB_REPO = "portfolio_website";
+  const IMAGES_FOLDER = "images";
+
+  async function loadImagesFromRepo() {
+    const container = document.getElementById("gallery-container");
+    const loading = document.getElementById("loading");
+
+    try {
+      // Fetch the file list of the images folder using GitHub's public API
+      const apiUrl = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${IMAGES_FOLDER}`;
+      const response = await fetch(apiUrl);
+
+      if (!response.ok) {
+        throw new Error(`GitHub API Error: ${response.status}`);
+      }
+
+      const files = await response.json();
+
+      // Remove loading indicator
+      //if (loading) loading.remove();
+
+      // Filter only image files (jpg, jpeg, png, webp, gif)
+      const validExtensions = /\.(jpe?g|png|webp|gif)$/i;
+      const imageFiles = files.filter(file => file.type === "file" && validExtensions.test(file.name));
+
+      // Loop through each photo and generate a card
+      imageFiles.forEach(file => {
+        // Clean up filename to create a nice title (e.g., "furor_atunero.jpg" -> "Furor Atunero")
+        const rawName = file.name.substring(0, file.name.lastIndexOf('.'));
+        const formattedTitle = rawName
+          .replace(/[_-]/g, ' ')
+          .replace(/\b\w/g, char => char.toUpperCase());
+
+        const card = document.createElement("div");
+        card.className = "group relative rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800 shadow-md";
+
+        card.innerHTML = `
+          <div class="overflow-hidden">
+            <img 
+              src="${file.path}" 
+              alt="${formattedTitle}" 
+              loading="lazy"
+              class="w-full h-72 object-cover transition-transform duration-300 group-hover:scale-105" 
+            />
+          </div>
+          <div class="p-4 bg-zinc-900/90 border-t border-zinc-800 flex justify-between items-center">
+            <div>
+              <h3 class="text-base font-semibold text-white">${formattedTitle}</h3>
+              <p class="text-xs text-zinc-400">Photography</p>
+            </div>
+            <a href="${file.path}" target="_blank" class="text-xs text-amber-500 hover:text-amber-400 font-medium">
+              View Full
+            </a>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+
+    } catch (error) {
+      console.error("Error loading gallery:", error);
+      if (loading) {
+        loading.innerHTML = `<p class="text-red-400">Could not load images. Check repository configuration.</p>`;
+      }
+    }
+  }
+
+  // Run the function when the page loads
+  loadImagesFromRepo();
+</script>
   </section>
 
   <!-- Footer / Contact -->
