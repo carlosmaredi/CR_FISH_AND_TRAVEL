@@ -61,7 +61,7 @@
       const files = await response.json();
 
       // Remove loading indicator
-      //if (loading) loading.remove();
+      if (loading) loading.remove();
 
       // Filter only image files (jpg, jpeg, png, webp, gif)
       const validExtensions = /\.(jpe?g|png|webp|gif)$/i;
@@ -69,37 +69,24 @@
 
       // Loop through each photo and generate a card
       imageFiles.forEach(file => {
-        // Clean up filename to create a nice title (e.g., "furor_atunero.jpg" -> "Furor Atunero")
-        const rawName = file.name.substring(0, file.name.lastIndexOf('.'));
-        const formattedTitle = rawName
-          .replace(/[_-]/g, ' ')
-          .replace(/\b\w/g, char => char.toUpperCase());
+  const card = document.createElement("a");
+  card.href = file.path;
+  card.target = "_blank";
+  card.className = "group block rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800 shadow-md";
 
-        const card = document.createElement("div");
-        card.className = "group relative rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800 shadow-md";
+  card.innerHTML = `
+    <div class="overflow-hidden">
+      <img 
+        src="${file.path}" 
+        alt="Photo" 
+        loading="lazy"
+        class="w-full h-72 object-cover transition-transform duration-300 group-hover:scale-105" 
+      />
+    </div>
+  `;
 
-        card.innerHTML = `
-          <div class="overflow-hidden">
-            <img 
-              src="${file.path}" 
-              alt="${formattedTitle}" 
-              loading="lazy"
-              class="w-full h-72 object-cover transition-transform duration-300 group-hover:scale-105" 
-            />
-          </div>
-          <div class="p-4 bg-zinc-900/90 border-t border-zinc-800 flex justify-between items-center">
-            <div>
-              <h3 class="text-base font-semibold text-white">${formattedTitle}</h3>
-              <p class="text-xs text-zinc-400">Photography</p>
-            </div>
-            <a href="${file.path}" target="_blank" class="text-xs text-amber-500 hover:text-amber-400 font-medium">
-              View Full
-            </a>
-          </div>
-        `;
-
-        container.appendChild(card);
-      });
+  container.appendChild(card);
+});;
 
     } catch (error) {
       console.error("Error loading gallery:", error);
