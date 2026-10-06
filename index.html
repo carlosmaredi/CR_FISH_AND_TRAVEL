@@ -140,6 +140,9 @@
         result.data.forEach(sectionData => {
           const sectionTitle = sectionData.folderName;
           const files = sectionData.files;
+          
+          // Detect if the folder is for vertical content
+          const isVertical = sectionTitle.toLowerCase().includes('vertical');
 
           const section = document.createElement("div");
           section.className = "mb-10";
@@ -149,12 +152,17 @@
             ? 'M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z'
             : 'M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z';
 
+          // Adjust grid columns: more columns for vertical items so they don't look huge
+          const gridCols = isVertical 
+            ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5' 
+            : `grid-cols-1 sm:grid-cols-2 md:grid-cols-3 ${!isPhoto ? 'lg:grid-cols-4' : ''}`;
+
           section.innerHTML = `
             <h3 class="text-2xl font-bold mb-6 text-zinc-100 flex items-center gap-2 border-b border-zinc-800 pb-2">
               <svg class="w-6 h-6 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${iconPath}"/></svg>
               ${sectionTitle}
             </h3>
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 ${!isPhoto ? 'lg:grid-cols-4' : ''} gap-6"></div>
+            <div class="grid ${gridCols} gap-4 md:gap-6"></div>
           `;
           
           const grid = section.querySelector('.grid');
@@ -163,23 +171,27 @@
             const card = document.createElement("div");
             
             if (isPhoto) {
-              // FIX: Use Google's thumbnail API endpoint with size parameter (s2000 = high res)
               const imgUrl = `https://drive.google.com/thumbnail?id=${file.id}&sz=s2000`;
               const globalIndex = currentImages.length;
               currentImages.push({ path: imgUrl, title: file.name });
 
+              // Apply 9:16 aspect ratio or fallback to standard h-72
+              const containerClass = isVertical ? 'aspect-[9/16]' : 'h-72';
+
               card.className = "group block rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800 shadow-md cursor-pointer";
               card.innerHTML = `
-                <div class="overflow-hidden">
-                  <img src="${imgUrl}" alt="${file.name}" loading="lazy" class="w-full h-72 object-cover transition-transform duration-300 group-hover:scale-105" />
+                <div class="overflow-hidden ${isVertical ? 'aspect-[9/16]' : ''}">
+                  <img src="${imgUrl}" alt="${file.name}" loading="lazy" class="w-full ${containerClass} object-cover transition-transform duration-300 group-hover:scale-105" />
                 </div>
               `;
               card.addEventListener("click", () => openLightbox(globalIndex));
             } else {
-              // FIX: Generate an actual cover image for the video using the same endpoint
               const videoThumbUrl = `https://drive.google.com/thumbnail?id=${file.id}&sz=w800`;
+              
+              // Apply 9:16 aspect ratio for vertical video folders, else 16:9 (aspect-video)
+              const aspectClass = isVertical ? 'aspect-[9/16]' : 'aspect-video';
 
-              card.className = "group relative rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800 shadow-md cursor-pointer aspect-video";
+              card.className = `group relative rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800 shadow-md cursor-pointer ${aspectClass}`;
               card.innerHTML = `
                 <img src="${videoThumbUrl}" alt="Video cover" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 opacity-50 group-hover:opacity-100"/>
                 <div class="absolute inset-0 flex items-center justify-center transition-all z-10">
