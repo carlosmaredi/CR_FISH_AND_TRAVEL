@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Carlos Reyes | Fish and Travel</title>
-  <!-- Tailwind CSS & Lucide Icons -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
@@ -19,23 +18,16 @@
           src="Logos/Completo_White.png" 
           alt="Logo" 
           class="h-8 md:h-10 w-auto object-contain mix-blend-screen"
+          onerror="this.style.display='none'; this.insertAdjacentHTML('afterend', '<span class=\\'font-bold text-xl\\'>CARLOS REYES</span>')"
         />
       </a>
       
       <!-- Nav Tabs -->
       <nav class="flex items-center gap-4 text-sm md:text-base font-medium">
-        <button 
-          id="tab-fotos" 
-          onclick="switchTab('fotos')" 
-          class="px-4 py-1.5 rounded-full bg-zinc-100 text-zinc-900 transition-all font-semibold cursor-pointer"
-        >
+        <button id="tab-fotos" onclick="switchTab('fotos')" class="px-4 py-1.5 rounded-full bg-zinc-100 text-zinc-900 transition-all font-semibold cursor-pointer">
           Fotos
         </button>
-        <button 
-          id="tab-videos" 
-          onclick="switchTab('videos')" 
-          class="px-4 py-1.5 rounded-full text-zinc-400 hover:text-white transition-all font-semibold cursor-pointer"
-        >
+        <button id="tab-videos" onclick="switchTab('videos')" class="px-4 py-1.5 rounded-full text-zinc-400 hover:text-white transition-all font-semibold cursor-pointer">
           Videos
         </button>
       </nav>
@@ -55,76 +47,47 @@
     
     <!-- 1. PHOTOS VIEW (Default) -->
     <section id="view-fotos" class="block">
-      <div id="gallery-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        <div id="loading-photos" class="col-span-full text-center py-12 text-zinc-500">
-          Cargando fotos...
-        </div>
+      <div id="loading-photos" class="text-center py-12 text-zinc-500 animate-pulse">
+        Conectando con Drive... Cargando subcarpetas de fotos...
       </div>
+      <div id="fotos-sections-container" class="space-y-16"></div>
     </section>
 
     <!-- 2. VIDEOS VIEW (Hidden by default) -->
-    <section id="view-videos" class="hidden space-y-12">
-      
-      <!-- Sección Videos Normales -->
-      <div>
-        <h3 class="text-2xl font-bold mb-6 text-zinc-100 flex items-center gap-2 border-b border-zinc-800 pb-2">
-          <svg class="w-6 h-6 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-          Videos
-        </h3>
-        <div id="videos-normal-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          <div id="loading-videos-normal" class="col-span-full text-center py-12 text-zinc-500">
-            Cargando videos...
-          </div>
-        </div>
+    <section id="view-videos" class="hidden">
+      <div id="loading-videos" class="text-center py-12 text-zinc-500 animate-pulse">
+        Conectando con Drive... Cargando subcarpetas de videos...
       </div>
-
-      <!-- Sección Shorts -->
-      <div>
-        <h3 class="text-2xl font-bold mb-6 text-zinc-100 flex items-center gap-2 border-b border-zinc-800 pb-2">
-          <svg class="w-5 h-5 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
-          Shorts
-        </h3>
-        <!-- Nota: La grilla de los shorts permite más columnas (hasta 5) porque son verticales -->
-        <div id="videos-shorts-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
-          <div id="loading-videos-shorts" class="col-span-full text-center py-12 text-zinc-500">
-            Cargando shorts...
-          </div>
-        </div>
-      </div>
-
+      <div id="videos-sections-container" class="space-y-16"></div>
     </section>
 
   </main>
 
   <!-- Video Player Lightbox Modal -->
   <div id="video-modal" class="fixed inset-0 z-50 hidden bg-black/90 backdrop-blur-md flex items-center justify-center p-4 select-none">
-    <button id="video-modal-close" class="absolute top-5 right-5 text-white/80 hover:text-white text-3xl font-light focus:outline-none p-2 cursor-pointer z-10 transition">
-      &times;
-    </button>
-    <div id="video-modal-content" class="w-full max-w-4xl aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl relative flex items-center justify-center">
-      <!-- Dynamic video iframe or native player will be injected here -->
-    </div>
+    <button id="video-modal-close" class="absolute top-5 right-5 text-white/80 hover:text-white text-3xl font-light focus:outline-none p-2 cursor-pointer z-10 transition">&times;</button>
+    <div id="video-modal-content" class="w-full max-w-4xl aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl relative flex items-center justify-center"></div>
   </div>
 
-  <!-- Footer / Contact -->
-  <footer id="contact" class="border-t border-zinc-800 py-12 text-center text-sm text-zinc-500">
-    <p>&copy; 2026 Portfolio. Built with GitHub Pages.</p>
+  <footer class="border-t border-zinc-800 py-12 text-center text-sm text-zinc-500">
+    <p>&copy; 2026 Carlos Reyes. Built via Apps Script Integration.</p>
   </footer>
 
   <!-- Scripts -->
   <script>
-    // 1. GitHub Configuration
-    const GITHUB_USERNAME = "carlosmaredi"; 
-    const GITHUB_REPO = "CR_FISH_AND_TRAVEL";
-    const IMAGES_FOLDER = "images";
-    const VIDEOS_FILE = "videos.txt";
+    // ==========================================
+    // CONFIGURACIÓN (REEMPLAZA ESTOS DATOS)
+    // ==========================================
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxrYidcVZh4DsvScdFqg4fo0y06w2qC3ftYTRZyH7uozm1_huYkElDLMHVKe-jUmyY0/exec"; // La URL que copiaste en el Paso 2
+    const FOLDER_ID_PHOTOS = "1ED8OshozuaY0OoXWn4WiGTXktp4g8AId"; 
+    const FOLDER_ID_VIDEOS = "1A3l_GburmzFXJwnsdCOfrs0u32cz3eHW";
 
-    // Lightbox state variables
     let currentImages = [];
     let currentIndex = 0;
     let videosLoaded = false;
+    let openLightbox;
 
-    // --- TAB SWITCHING LOGIC ---
+    // --- TAB SWITCHING ---
     function switchTab(tab) {
       const viewFotos = document.getElementById("view-fotos");
       const viewVideos = document.getElementById("view-videos");
@@ -134,47 +97,128 @@
       if (tab === "fotos") {
         viewFotos.classList.remove("hidden");
         viewVideos.classList.add("hidden");
-
         tabFotos.className = "px-4 py-1.5 rounded-full bg-zinc-100 text-zinc-900 transition-all font-semibold cursor-pointer";
         tabVideos.className = "px-4 py-1.5 rounded-full text-zinc-400 hover:text-white transition-all font-semibold cursor-pointer";
       } else {
         viewFotos.classList.add("hidden");
         viewVideos.classList.remove("hidden");
-
         tabVideos.className = "px-4 py-1.5 rounded-full bg-zinc-100 text-zinc-900 transition-all font-semibold cursor-pointer";
         tabFotos.className = "px-4 py-1.5 rounded-full text-zinc-400 hover:text-white transition-all font-semibold cursor-pointer";
 
         if (!videosLoaded) {
-          loadVideosFromTxt();
+          loadDriveData(FOLDER_ID_VIDEOS, "videos");
           videosLoaded = true;
         }
       }
     }
 
-    // --- PHOTO LIGHTBOX IMPLEMENTATION ---
+    // --- CREADOR DE SECCIONES DINÁMICAS ---
+    async function loadDriveData(folderId, type) {
+      const containerId = type === "fotos" ? "fotos-sections-container" : "videos-sections-container";
+      const loadingId = type === "fotos" ? "loading-photos" : "loading-videos";
+      const container = document.getElementById(containerId);
+      const loading = document.getElementById(loadingId);
+
+      if (APPS_SCRIPT_URL === "URL_DE_TU_APPS_SCRIPT_AQUI") {
+        loading.innerHTML = "<p class='text-red-400'>Falta agregar la URL de Apps Script en el código.</p>";
+        return;
+      }
+
+      if (type === "fotos" && !openLightbox) openLightbox = createLightbox();
+
+      try {
+        const response = await fetch(`${APPS_SCRIPT_URL}?id=${folderId}`);
+        const result = await response.json();
+        
+        if (loading) loading.remove();
+
+        if (!result.success || result.data.length === 0) {
+          container.innerHTML = `<p class="text-center text-zinc-500 py-12">No se encontraron subcarpetas o archivos.</p>`;
+          return;
+        }
+
+        // Recorrer las subcarpetas que devolvió el Script
+        result.data.forEach(sectionData => {
+          const sectionTitle = sectionData.folderName;
+          const files = sectionData.files;
+
+          const section = document.createElement("div");
+          section.className = "mb-10";
+          
+          const isPhoto = type === "fotos";
+          const iconPath = isPhoto 
+            ? 'M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z'
+            : 'M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z';
+
+          section.innerHTML = `
+            <h3 class="text-2xl font-bold mb-6 text-zinc-100 flex items-center gap-2 border-b border-zinc-800 pb-2">
+              <svg class="w-6 h-6 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${iconPath}"/></svg>
+              ${sectionTitle}
+            </h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 ${!isPhoto ? 'lg:grid-cols-4' : ''} gap-6"></div>
+          `;
+          
+          const grid = section.querySelector('.grid');
+          
+          files.forEach(file => {
+            const card = document.createElement("div");
+            
+            if (isPhoto) {
+              const imgUrl = `https://drive.google.com/uc?export=view&id=${file.id}`;
+              const globalIndex = currentImages.length;
+              currentImages.push({ path: imgUrl, title: file.name });
+
+              card.className = "group block rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800 shadow-md cursor-pointer";
+              card.innerHTML = `
+                <div class="overflow-hidden">
+                  <img src="${imgUrl}" alt="${file.name}" loading="lazy" class="w-full h-72 object-cover transition-transform duration-300 group-hover:scale-105" />
+                </div>
+              `;
+              card.addEventListener("click", () => openLightbox(globalIndex));
+            } else {
+              card.className = "group relative rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800 shadow-md cursor-pointer aspect-video";
+              card.innerHTML = `
+                <img src="https://images.unsplash.com/photo-1534447677768-be436bb09401?w=800&q=80" alt="Video cover" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 opacity-50 group-hover:opacity-100"/>
+                <div class="absolute inset-0 flex items-center justify-center transition-all z-10">
+                  <div class="w-14 h-14 rounded-full bg-white/20 backdrop-blur-md border border-white/40 flex items-center justify-center text-white shadow-lg transition-transform duration-300 group-hover:scale-110">
+                    <svg class="w-6 h-6 fill-current translate-x-0.5" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+                  </div>
+                </div>
+                <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-3 z-20">
+                  <h3 class="text-white text-sm font-semibold truncate drop-shadow-md">${file.name}</h3>
+                </div>
+              `;
+              card.addEventListener("click", () => openVideoModal(file.id));
+            }
+            grid.appendChild(card);
+          });
+          
+          container.appendChild(section);
+        });
+
+      } catch (error) {
+        console.error("Error al cargar los datos:", error);
+        if (loading) loading.innerHTML = `<p class="text-red-400">Hubo un error cargando los datos. Verifica que la carpeta sea pública.</p>`;
+      }
+    }
+
+    // --- PHOTO LIGHTBOX ---
     function createLightbox() {
       const overlay = document.createElement("div");
       overlay.id = "lightbox-modal";
       overlay.className = "fixed inset-0 z-50 hidden bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 select-none";
-      
       overlay.innerHTML = `
-        <button id="lightbox-close" class="absolute top-5 right-5 text-white/80 hover:text-white text-3xl font-light focus:outline-none p-2 cursor-pointer z-10 transition">
-          &times;
-        </button>
-
+        <button id="lightbox-close" class="absolute top-5 right-5 text-white/80 hover:text-white text-3xl font-light focus:outline-none p-2 cursor-pointer z-10 transition">&times;</button>
         <button id="lightbox-prev" class="absolute left-4 top-1/2 -translate-y-1/2 text-white/80 hover:text-white bg-black/40 hover:bg-black/70 p-3 rounded-full focus:outline-none cursor-pointer z-10 transition">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
         </button>
-
         <div class="max-w-5xl max-h-[85vh] flex items-center justify-center">
-          <img id="lightbox-img" src="" alt="Enlarged photo" class="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl transition duration-200">
+          <img id="lightbox-img" src="" class="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl transition duration-200">
         </div>
-
         <button id="lightbox-next" class="absolute right-4 top-1/2 -translate-y-1/2 text-white/80 hover:text-white bg-black/40 hover:bg-black/70 p-3 rounded-full focus:outline-none cursor-pointer z-10 transition">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
         </button>
       `;
-
       document.body.appendChild(overlay);
 
       const lightboxImg = overlay.querySelector("#lightbox-img");
@@ -182,269 +226,48 @@
       const prevBtn = overlay.querySelector("#lightbox-prev");
       const nextBtn = overlay.querySelector("#lightbox-next");
 
-      function updateImage() {
-        lightboxImg.src = currentImages[currentIndex].path;
-      }
-
-      function openModal(index) {
-        currentIndex = index;
-        updateImage();
-        overlay.classList.remove("hidden");
-        document.body.style.overflow = "hidden";
-      }
-
-      function closeModal() {
-        overlay.classList.add("hidden");
-        lightboxImg.src = "";
-        document.body.style.overflow = "";
-      }
-
-      function showPrev() {
-        currentIndex = (currentIndex - 1 + currentImages.length) % currentImages.length;
-        updateImage();
-      }
-
-      function showNext() {
-        currentIndex = (currentIndex + 1) % currentImages.length;
-        updateImage();
-      }
+      function updateImage() { lightboxImg.src = currentImages[currentIndex].path; }
+      function openModal(index) { currentIndex = index; updateImage(); overlay.classList.remove("hidden"); document.body.style.overflow = "hidden"; }
+      function closeModal() { overlay.classList.add("hidden"); lightboxImg.src = ""; document.body.style.overflow = ""; }
+      function showPrev() { currentIndex = (currentIndex - 1 + currentImages.length) % currentImages.length; updateImage(); }
+      function showNext() { currentIndex = (currentIndex + 1) % currentImages.length; updateImage(); }
 
       closeBtn.addEventListener("click", closeModal);
       prevBtn.addEventListener("click", (e) => { e.stopPropagation(); showPrev(); });
       nextBtn.addEventListener("click", (e) => { e.stopPropagation(); showNext(); });
-
-      overlay.addEventListener("click", (e) => {
-        if (e.target === overlay) closeModal();
-      });
-
+      overlay.addEventListener("click", (e) => { if (e.target === overlay) closeModal(); });
       window.addEventListener("keydown", (e) => {
         if (overlay.classList.contains("hidden")) return;
         if (e.key === "Escape") closeModal();
         if (e.key === "ArrowLeft") showPrev();
         if (e.key === "ArrowRight") showNext();
       });
-
       return openModal;
     }
 
-    // --- VIDEO MODAL POPUP LOGIC ---
+    // --- VIDEO MODAL ---
     const videoModal = document.getElementById("video-modal");
     const videoModalContent = document.getElementById("video-modal-content");
     const videoModalClose = document.getElementById("video-modal-close");
 
-    function openVideoModal(url, isYouTube, youtubeId, isShort) {
-      if (isYouTube && youtubeId) {
-        // Embed YouTube video with autoplay
-        videoModalContent.innerHTML = `
-          <iframe 
-            src="https://www.youtube.com/embed/${youtubeId}?autoplay=1&rel=0" 
-            class="w-full h-full" 
-            frameborder="0" 
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-            allowfullscreen>
-          </iframe>
-        `;
-        // Format aspect ratio appropriately for YouTube Shorts
-        if (isShort) {
-          videoModalContent.className = "w-full max-w-sm aspect-[9/16] bg-black rounded-2xl overflow-hidden shadow-2xl relative";
-        } else {
-          videoModalContent.className = "w-full max-w-4xl aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl relative";
-        }
-      } else {
-        // Native HTML5 video player
-        videoModalContent.className = "w-full max-w-4xl aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl relative";
-        videoModalContent.innerHTML = `
-          <video controls autoplay class="w-full h-full object-contain bg-black">
-            <source src="${url}">
-            Tu navegador no soporta el tag de video.
-          </video>
-        `;
-      }
-
+    function openVideoModal(driveFileId) {
+      videoModalContent.innerHTML = `<iframe src="https://drive.google.com/file/d/${driveFileId}/preview" class="w-full h-full border-0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
       videoModal.classList.remove("hidden");
       document.body.style.overflow = "hidden";
     }
 
     function closeVideoModal() {
       videoModal.classList.add("hidden");
-      videoModalContent.innerHTML = ""; // Stop playback immediately
+      videoModalContent.innerHTML = ""; 
       document.body.style.overflow = "";
     }
 
     videoModalClose.addEventListener("click", closeVideoModal);
-    videoModal.addEventListener("click", (e) => {
-      if (e.target === videoModal) closeVideoModal();
-    });
+    videoModal.addEventListener("click", (e) => { if (e.target === videoModal) closeVideoModal(); });
+    window.addEventListener("keydown", (e) => { if (!videoModal.classList.contains("hidden") && e.key === "Escape") closeVideoModal(); });
 
-    window.addEventListener("keydown", (e) => {
-      if (!videoModal.classList.contains("hidden") && e.key === "Escape") {
-        closeVideoModal();
-      }
-    });
-
-    // Helper: Extract YouTube ID & detect if it is a Short
-    function parseYouTubeUrl(url) {
-      const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/);
-      const isShort = url.includes("/shorts/");
-      return {
-        id: match ? match[1] : null,
-        isShort: isShort
-      };
-    }
-
-    // --- LOAD IMAGES VIA GITHUB API ---
-    async function loadImagesFromRepo() {
-      const container = document.getElementById("gallery-container");
-      const loading = document.getElementById("loading-photos");
-
-      try {
-        const openLightbox = createLightbox();
-        const apiUrl = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${IMAGES_FOLDER}`;
-        const response = await fetch(apiUrl);
-
-        if (!response.ok) throw new Error(`GitHub API Error: ${response.status}`);
-
-        const files = await response.json();
-        if (loading) loading.remove();
-
-        const validExtensions = /\.(jpe?g|png|webp|gif)$/i;
-        currentImages = files.filter(file => file.type === "file" && validExtensions.test(file.name));
-
-        currentImages.forEach((file, index) => {
-          const card = document.createElement("div");
-          card.className = "group block rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800 shadow-md cursor-pointer";
-
-          card.innerHTML = `
-            <div class="overflow-hidden">
-              <img 
-                src="${file.path}" 
-                alt="Photo" 
-                loading="lazy"
-                class="w-full h-72 object-cover transition-transform duration-300 group-hover:scale-105" 
-              />
-            </div>
-          `;
-
-          card.addEventListener("click", () => openLightbox(index));
-          container.appendChild(card);
-        });
-
-      } catch (error) {
-        console.error("Error loading gallery:", error);
-        if (loading) {
-          loading.innerHTML = `<p class="text-red-400">Could not load images. Check repository configuration.</p>`;
-        }
-      }
-    }
-
-    // --- LOAD VIDEOS FROM .TXT FILE ---
-    async function loadVideosFromTxt() {
-      const normalContainer = document.getElementById("videos-normal-container");
-      const shortsContainer = document.getElementById("videos-shorts-container");
-      
-      const loadingNormal = document.getElementById("loading-videos-normal");
-      const loadingShorts = document.getElementById("loading-videos-shorts");
-
-      try {
-        const txtUrl = `https://raw.githubusercontent.com/${GITHUB_USERNAME}/${GITHUB_REPO}/main/${VIDEOS_FILE}`;
-        const response = await fetch(txtUrl);
-
-        if (!response.ok) throw new Error(`Could not find ${VIDEOS_FILE}`);
-
-        const text = await response.text();
-        if (loadingNormal) loadingNormal.remove();
-        if (loadingShorts) loadingShorts.remove();
-
-        // Limpiar y filtrar líneas
-        const lines = text
-          .split("\n")
-          .map(line => line.trim())
-          .filter(line => line.length > 0 && !line.startsWith("#"));
-
-        if (lines.length === 0) {
-          normalContainer.innerHTML = `<p class="col-span-full text-zinc-500 py-4">No se encontraron videos.</p>`;
-          shortsContainer.innerHTML = `<p class="col-span-full text-zinc-500 py-4">No se encontraron shorts.</p>`;
-          return;
-        }
-
-        let normalCount = 0;
-        let shortsCount = 0;
-
-        lines.forEach(line => {
-          // Separar la URL del Título usando "|"
-          const parts = line.split("|");
-          const url = parts[0].trim();
-          const title = parts.length > 1 ? parts[1].trim() : "";
-
-          const { id: ytId, isShort } = parseYouTubeUrl(url);
-          const isYouTube = Boolean(ytId);
-
-          const card = document.createElement("div");
-          
-          // NUEVO: Ajustar la proporción visual (horizontal para videos, vertical para shorts)
-          const aspectRatioClass = isShort ? "aspect-[9/16]" : "aspect-video";
-          card.className = `group relative rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800 shadow-md cursor-pointer ${aspectRatioClass}`;
-
-          const thumbnailUrl = isYouTube 
-            ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`
-            : "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=800&auto=format&fit=crop&q=60";
-
-          card.innerHTML = `
-            <img 
-              src="${thumbnailUrl}" 
-              alt="Video preview" 
-              loading="lazy" 
-              class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 opacity-80 group-hover:opacity-100"
-            />
-            
-            <!-- Play Button Overlay -->
-            <div class="absolute inset-0 bg-black/40 flex items-center justify-center group-hover:bg-black/20 transition-all z-10">
-              <div class="w-14 h-14 rounded-full bg-white/20 backdrop-blur-md border border-white/40 flex items-center justify-center text-white shadow-lg transition-transform duration-300 group-hover:scale-110">
-                <svg class="w-6 h-6 fill-current translate-x-0.5" viewBox="0 0 24 24">
-                  <path d="M8 5v14l11-7z" />
-                </svg>
-              </div>
-            </div>
-
-            <!-- Título del video -->
-            ${title ? `
-              <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-3 md:p-4 z-20 pointer-events-none">
-                <h3 class="text-white text-sm md:text-base font-semibold truncate drop-shadow-md">${title}</h3>
-              </div>
-            ` : ""}
-          `;
-
-          card.addEventListener("click", () => {
-            openVideoModal(url, isYouTube, ytId, isShort);
-          });
-
-          // Insertar en la grilla correspondiente
-          if (isShort) {
-            shortsContainer.appendChild(card);
-            shortsCount++;
-          } else {
-            normalContainer.appendChild(card);
-            normalCount++;
-          }
-        });
-
-        // Mostrar un mensaje amigable si una de las dos secciones se queda sin videos
-        if (normalCount === 0) {
-            normalContainer.innerHTML = `<p class="col-span-full text-zinc-500 py-4">Aún no hay videos en esta sección.</p>`;
-        }
-        if (shortsCount === 0) {
-            shortsContainer.innerHTML = `<p class="col-span-full text-zinc-500 py-4">Aún no hay shorts en esta sección.</p>`;
-        }
-
-      } catch (error) {
-        console.error("Error loading videos:", error);
-        if (loadingNormal) loadingNormal.innerHTML = `<p class="text-zinc-500 py-8">No se pudieron cargar los videos.</p>`;
-        if (loadingShorts) loadingShorts.innerHTML = `<p class="text-zinc-500 py-8">No se pudieron cargar los shorts.</p>`;
-      }
-    }
-
-    // Initialize gallery on page load
-    loadImagesFromRepo();
+    // Inicializar fotos
+    loadDriveData(FOLDER_ID_PHOTOS, "fotos");
   </script>
 </body>
 </html>
