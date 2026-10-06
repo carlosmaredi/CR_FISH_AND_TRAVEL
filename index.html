@@ -3,6 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <!-- Política de Seguridad de Contenido (CSP) Corregida -->
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self'; 
+    script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://unpkg.com;
+    img-src 'self' data: https://drive.google.com https://*.googleusercontent.com;
+    frame-src 'self' https://drive.google.com;
+    connect-src 'self' https://script.google.com https://script.googleusercontent.com;
+    style-src 'self' 'unsafe-inline';
+  ">
+
   <title>Carlos Reyes | Fish and Travel</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -18,7 +29,7 @@
           src="Logos/Completo_White.png" 
           alt="Logo" 
           class="h-8 md:h-10 w-auto object-contain mix-blend-screen"
-          onerror="this.style.display='none'; this.insertAdjacentHTML('afterend', '<span class=\\'font-bold text-xl\\'>CARLOS REYES</span>')"
+          onerror="this.style.display='none'; this.parentElement.insertAdjacentHTML('beforeend', '<span>CARLOS REYES</span>')"
         />
       </a>
       
@@ -78,14 +89,31 @@
     // ==========================================
     // CONFIGURACIÓN (REEMPLAZA ESTOS DATOS)
     // ==========================================
-    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxrYidcVZh4DsvScdFqg4fo0y06w2qC3ftYTRZyH7uozm1_huYkElDLMHVKe-jUmyY0/exec"; // La URL que copiaste en el Paso 2
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxrYidcVZh4DsvScdFqg4fo0y06w2qC3ftYTRZyH7uozm1_huYkElDLMHVKe-jUmyY0/exec";
     const FOLDER_ID_PHOTOS = "1ED8OshozuaY0OoXWn4WiGTXktp4g8AId"; 
     const FOLDER_ID_VIDEOS = "1A3l_GburmzFXJwnsdCOfrs0u32cz3eHW";
+    
+    // Configuración del caché (24 horas en milisegundos)
+    const CACHE_EXPIRATION_MS = 24 * 60 * 60 * 1000;
 
     let currentImages = [];
     let currentIndex = 0;
     let videosLoaded = false;
     let openLightbox;
+
+    // --- SANITIZACIÓN (Previene XSS) ---
+    function escapeHTML(str) {
+      if (!str) return "";
+      return str.replace(/[&<>'"]/g, 
+        tag => ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          "'": '&#39;',
+          '"': '&quot;'
+        }[tag])
+      );
+    }
 
     // --- TAB SWITCHING ---
     function switchTab(tab) {
@@ -112,36 +140,63 @@
       }
     }
 
-    // --- CREADOR DE SECCIONES DINÁMICAS ---
+    // --- CREADOR DE SECCIONES DINÁMICAS (AHORA CON CACHÉ) ---
     async function loadDriveData(folderId, type) {
       const containerId = type === "fotos" ? "fotos-sections-container" : "videos-sections-container";
       const loadingId = type === "fotos" ? "loading-photos" : "loading-videos";
       const container = document.getElementById(containerId);
       const loading = document.getElementById(loadingId);
 
-      if (APPS_SCRIPT_URL === "URL_DE_TU_APPS_SCRIPT_AQUI") {
-        loading.innerHTML = "<p class='text-red-400'>Falta agregar la URL de Apps Script en el código.</p>";
-        return;
-      }
-
       if (type === "fotos" && !openLightbox) openLightbox = createLightbox();
+      
+      let driveData = [];
 
       try {
-        const response = await fetch(`${APPS_SCRIPT_URL}?id=${folderId}`);
-        const result = await response.json();
-        
+        // 1. Revisar si hay datos guardados en el caché local
+        // Nota: Le agregué "_v3" para asegurar que tu navegador descarte cualquier caché problemático anterior
+        const cacheKey = `cr_drive_cache_${type}_v3`; 
+        const cachedItem = localStorage.getItem(cacheKey);
+        const now = new Date().getTime();
+
+        if (cachedItem) {
+          const parsedCache = JSON.parse(cachedItem);
+          // Verificar si el caché aún es válido según el tiempo de expiración
+          if (now - parsedCache.timestamp < CACHE_EXPIRATION_MS) {
+            console.log(`Cargando ${type} desde caché local...`);
+            driveData = parsedCache.data;
+          }
+        }
+
+        // 2. Si el caché está vacío o expirado, hacer la petición a Google Apps Script
+        if (driveData.length === 0) {
+          console.log(`Descargando ${type} desde Google Drive...`);
+          const response = await fetch(`${APPS_SCRIPT_URL}?id=${folderId}`);
+          const result = await response.json();
+          
+          if (!result.success) throw new Error("Error en la respuesta de Apps Script");
+          
+          driveData = result.data;
+          
+          // Guardar los nuevos datos descargados en el caché local
+          localStorage.setItem(cacheKey, JSON.stringify({
+            timestamp: now,
+            data: driveData
+          }));
+        }
+
+        // 3. Renderizar la interfaz con los datos obtenidos
         if (loading) loading.remove();
 
-        if (!result.success || result.data.length === 0) {
+        if (driveData.length === 0) {
           container.innerHTML = `<p class="text-center text-zinc-500 py-12">No se encontraron subcarpetas o archivos.</p>`;
           return;
         }
 
-        result.data.forEach(sectionData => {
-          const sectionTitle = sectionData.folderName;
+        driveData.forEach(sectionData => {
+          // Escapar el título de la carpeta antes de inyectarlo
+          const sectionTitle = escapeHTML(sectionData.folderName);
           const files = sectionData.files;
           
-          // Detect if the folder is for vertical content
           const isVertical = sectionTitle.toLowerCase().includes('vertical');
 
           const section = document.createElement("div");
@@ -152,7 +207,6 @@
             ? 'M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z'
             : 'M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z';
 
-          // Adjust grid columns: more columns for vertical items so they don't look huge
           const gridCols = isVertical 
             ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5' 
             : `grid-cols-1 sm:grid-cols-2 md:grid-cols-3 ${!isPhoto ? 'lg:grid-cols-4' : ''}`;
@@ -169,38 +223,37 @@
           
           files.forEach(file => {
             const card = document.createElement("div");
+            // Escapar el nombre del archivo
+            const safeFileName = escapeHTML(file.name.replace(/\.[^/.]+$/, ""));
             
             if (isPhoto) {
               const imgUrl = `https://drive.google.com/thumbnail?id=${file.id}&sz=s2000`;
               const globalIndex = currentImages.length;
-              currentImages.push({ path: imgUrl, title: file.name });
+              currentImages.push({ path: imgUrl, title: safeFileName });
 
-              // Apply 9:16 aspect ratio or fallback to standard h-72
               const containerClass = isVertical ? 'aspect-[9/16]' : 'h-72';
 
               card.className = "group block rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800 shadow-md cursor-pointer";
               card.innerHTML = `
                 <div class="overflow-hidden ${isVertical ? 'aspect-[9/16]' : ''}">
-                  <img src="${imgUrl}" alt="${file.name}" loading="lazy" class="w-full ${containerClass} object-cover transition-transform duration-300 group-hover:scale-105" />
+                  <img src="${imgUrl}" alt="${safeFileName}" loading="lazy" class="w-full ${containerClass} object-cover transition-transform duration-300 group-hover:scale-105" />
                 </div>
               `;
               card.addEventListener("click", () => openLightbox(globalIndex));
             } else {
               const videoThumbUrl = `https://drive.google.com/thumbnail?id=${file.id}&sz=w800`;
-              
-              // Apply 9:16 aspect ratio for vertical video folders, else 16:9 (aspect-video)
               const aspectClass = isVertical ? 'aspect-[9/16]' : 'aspect-video';
 
               card.className = `group relative rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800 shadow-md cursor-pointer ${aspectClass}`;
               card.innerHTML = `
-                <img src="${videoThumbUrl}" alt="Video cover" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 opacity-50 group-hover:opacity-100"/>
+                <img src="${videoThumbUrl}" alt="${safeFileName}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 opacity-50 group-hover:opacity-100"/>
                 <div class="absolute inset-0 flex items-center justify-center transition-all z-10">
                   <div class="w-14 h-14 rounded-full bg-white/20 backdrop-blur-md border border-white/40 flex items-center justify-center text-white shadow-lg transition-transform duration-300 group-hover:scale-110">
                     <svg class="w-6 h-6 fill-current translate-x-0.5" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
                   </div>
                 </div>
                 <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-3 z-20">
-                  <h3 class="text-white text-sm font-semibold truncate drop-shadow-md">${file.name}</h3>
+                  <h3 class="text-white text-sm font-semibold truncate drop-shadow-md">${safeFileName}</h3>
                 </div>
               `;
               card.addEventListener("click", () => openVideoModal(file.id));
