@@ -137,7 +137,6 @@
           return;
         }
 
-        // Recorrer las subcarpetas que devolvió el Script
         result.data.forEach(sectionData => {
           const sectionTitle = sectionData.folderName;
           const files = sectionData.files;
@@ -164,7 +163,8 @@
             const card = document.createElement("div");
             
             if (isPhoto) {
-              const imgUrl = `https://drive.google.com/uc?export=view&id=${file.id}`;
+              // FIX: Use Google's thumbnail API endpoint with size parameter (s2000 = high res)
+              const imgUrl = `https://drive.google.com/thumbnail?id=${file.id}&sz=s2000`;
               const globalIndex = currentImages.length;
               currentImages.push({ path: imgUrl, title: file.name });
 
@@ -176,9 +176,12 @@
               `;
               card.addEventListener("click", () => openLightbox(globalIndex));
             } else {
+              // FIX: Generate an actual cover image for the video using the same endpoint
+              const videoThumbUrl = `https://drive.google.com/thumbnail?id=${file.id}&sz=w800`;
+
               card.className = "group relative rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800 shadow-md cursor-pointer aspect-video";
               card.innerHTML = `
-                <img src="https://images.unsplash.com/photo-1534447677768-be436bb09401?w=800&q=80" alt="Video cover" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 opacity-50 group-hover:opacity-100"/>
+                <img src="${videoThumbUrl}" alt="Video cover" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 opacity-50 group-hover:opacity-100"/>
                 <div class="absolute inset-0 flex items-center justify-center transition-all z-10">
                   <div class="w-14 h-14 rounded-full bg-white/20 backdrop-blur-md border border-white/40 flex items-center justify-center text-white shadow-lg transition-transform duration-300 group-hover:scale-110">
                     <svg class="w-6 h-6 fill-current translate-x-0.5" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
